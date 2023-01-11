@@ -2,12 +2,9 @@ package uoc.ds.pr.model;
 
 import uoc.ds.pr.SportEvents4Club;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.Period;
-import java.util.Date;
 
-public class File implements Comparable<File> {
+public class File {
 
     private final SportEvents4Club.Type type;
     private String eventId;
@@ -66,6 +63,10 @@ public class File implements Comparable<File> {
         return recordId;
     }
 
+    public SportEvents4Club.Type getType() {
+        return null;
+    }
+
     public void setRecordId(String recordId) {
         this.recordId = recordId;
     }
@@ -111,14 +112,5 @@ public class File implements Comparable<File> {
         this.organization.addEvent(sportEvent);
 
         return sportEvent;
-    }
-
-    @Override
-    public int compareTo(File file) {
-        int beforeOrAfter = startDate.compareTo(file.getStartDate());
-        if (beforeOrAfter != 0) {
-            return beforeOrAfter;
-        }
-        return type.ordinal() - file.type.ordinal();
     }
 }

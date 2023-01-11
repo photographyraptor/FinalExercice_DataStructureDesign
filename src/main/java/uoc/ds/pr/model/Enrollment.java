@@ -1,14 +1,19 @@
 package uoc.ds.pr.model;
 
 public class Enrollment {
-    Player player;
-    boolean isSubtitute;
+    private Player player;
+    private boolean isSubtitute;
 
     public Enrollment(Player player, boolean isSubstitute) {
         this.player = player;
         this.isSubtitute = isSubstitute;
     }
 
-    public Player getPlayer() {return player; }
-
+    public Player getPlayer() {
+        return this.player;
+    }
+    
+    public boolean getIsSubstitute() {
+        return this.isSubtitute;
+    }
 }

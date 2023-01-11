@@ -1,7 +1,5 @@
 package uoc.ds.pr.model;
 
-import edu.uoc.ds.adt.nonlinear.HashTable;
-import edu.uoc.ds.adt.nonlinear.PriorityQueue;
 import edu.uoc.ds.adt.sequential.LinkedList;
 import edu.uoc.ds.adt.sequential.List;
 import edu.uoc.ds.adt.sequential.Queue;
@@ -35,12 +33,6 @@ public class SportEvent implements Comparable<SportEvent> {
 
     private Queue<Enrollment> enrollments;
 
-    private PriorityQueue<Enrollment> substitutes;
-
-    private List<Worker> workers;
-
-    private HashTable<String, Attender> attenders;
-
 
     public SportEvent(String eventId, String description, SportEvents4Club.Type type,
                       LocalDate startDate, LocalDate endDate, int max, File file) {
@@ -54,11 +46,8 @@ public class SportEvent implements Comparable<SportEvent> {
         this.enrollments = new QueueArrayImpl<>(MAX_NUM_ENROLLMENT);
         this.ratings = new LinkedList<>();
         numSubstitutes = 0;
-        this.substitutes = new PriorityQueue<>(MAX_NUM_ENROLLMENT);
-        this.workers = new LinkedList<>();
-        this.attenders = new HashTable<>();
-
     }
+
 
     public String getEventId() {
         return eventId;
@@ -123,7 +112,6 @@ public class SportEvent implements Comparable<SportEvent> {
 
     public void addRating(SportEvents4Club.Rating rating, String message, Player player) {
         Rating newRating = new Rating(rating, message, player);
-        player.addRating(newRating);
         ratings.insertEnd(newRating);
         sumRating+=rating.getValue();
     }
@@ -143,10 +131,6 @@ public class SportEvent implements Comparable<SportEvent> {
 
     public void addEnrollment(Player player, boolean isSubstitute) {
         enrollments.add(new Enrollment(player, isSubstitute));
-    }
-
-    public void addSubstitutes(Player player, boolean isSubstitute) {
-        substitutes.add(new Enrollment(player, isSubstitute));
     }
 
     public boolean is(String eventId) {
@@ -172,60 +156,11 @@ public class SportEvent implements Comparable<SportEvent> {
 
     public void addEnrollmentAsSubstitute(Player player) {
         addEnrollment(player, true);
-        //addSubstitutes(player, true); //TODO decidir que hacer con sustitutos
         incSubstitutes();
     }
 
     public int getNumSubstitutes() {
         return numSubstitutes;
     }
-    public OrganizingEntity getOrganizingEntity() { return null; }
-
-    public boolean noSubstitutes() {
-        return substitutes.isEmpty();
-        /*
-        Iterator<Enrollment> it_enr = enrollments.values();
-        while (it_enr.hasNext()) {
-            Enrollment e = it_enr.next();
-            if (e.isSubtitute) {
-                return false;
-            }
-        }
-        return true;*/
-    }
-    public Iterator<Enrollment> getSubstitutes() { return substitutes.values(); }
-    public void addWorker(Worker worker) {
-        workers.insertEnd(worker);
-    }
-    public boolean noWorkers() { return workers.isEmpty(); }
-    public Iterator<Worker> getWorkers() {
-        return workers.values();
-    }
-
-    public int numWorkers() { return workers.size(); }
-    public boolean isInWorkers(String dni) {
-        boolean found = false;
-        Worker worker = null;
-        Iterator<Worker> it = this.workers.values();
-        while (it.hasNext() && !found) {
-            worker = it.next();
-            found = worker.getDni().equals(dni);
-        }
-        return found;
-    }
-
-    public boolean isInAttendees(String phone){
-        return attenders.containsKey(phone);
-    }
-
-    public int numAttenders() { return attenders.size(); }
-
-    public void addAttender(String phone, Attender attender) { attenders.put(phone, attender);}
-
-    public Attender getAttender(String phone){ return attenders.get(phone); }
-
-    public Iterator<Attender> getAttenders() { return attenders.values(); }
-
-    public boolean noAttenders() { return attenders.isEmpty(); }
 
 }

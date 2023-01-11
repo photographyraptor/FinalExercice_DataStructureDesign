@@ -341,7 +341,7 @@ public interface SportEvents4Club {
      * @param eventId sport event
      * @return the workers assigned
      * @throws SportEventNotFoundException if sport event not found
-     * @throws NoWorkersException if there are no workers
+     * @throws NoWorkersException if there are not workers
      */
     public Iterator<Worker> getWorkersBySportEvent(String eventId) throws SportEventNotFoundException, NoWorkersException;
 

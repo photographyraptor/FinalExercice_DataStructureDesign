@@ -5,18 +5,13 @@ import java.time.LocalDate;
 import edu.uoc.ds.adt.sequential.LinkedList;
 import edu.uoc.ds.adt.sequential.List;
 import edu.uoc.ds.traversal.Iterator;
-import uoc.ds.pr.SportEvents4Club;
-import uoc.ds.pr.helper.LevelHelper;
 
 public class Player {
     private String id;
     private String name;
     private String surname;
     private List<SportEvent> events;
-    private List<Rating> ratings;
     private LocalDate birthday;
-    private SportEvents4Club.Level level;
-
 
 	public Player(String idUser, String name, String surname, LocalDate birthday) {
         this.setId(idUser);
@@ -24,8 +19,6 @@ public class Player {
         this.setSurname(surname);
         this.setBirthday(birthday);
         this.events = new LinkedList<>();
-        this.ratings = new LinkedList<>();
-        this.level = getLevel();
     }
 
     public void setName(String name) {
@@ -47,9 +40,11 @@ public class Player {
     public String getId() {
         return id;
     }
+
     public String getName() {
         return name;
     }
+
     public String getSurname() {
         return surname;
     }
@@ -57,7 +52,6 @@ public class Player {
     public LocalDate getBirthday() {
         return birthday;
     }
-
     public boolean is(String playerID) {
         return id.equals(playerID);
     }
@@ -85,9 +79,6 @@ public class Player {
         return events.size();
     }
 
-    public int numRatings() { return ratings.size(); }
-
-    public void addRating(Rating rating) { this.ratings.insertEnd(rating); }
     public Iterator<SportEvent> getEvents() {
         return events.values();
     }
@@ -95,6 +86,4 @@ public class Player {
     public boolean hasEvents() {
         return this.events.size()>0;
     }
-
-    public uoc.ds.pr.SportEvents4Club.Level getLevel() {return LevelHelper.getLevel(this.ratings.size()); }
 }

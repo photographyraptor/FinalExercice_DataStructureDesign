@@ -202,10 +202,10 @@ public class SportEvents4ClubPR1Test {
 
         Iterator<SportEvent> it = this.sportEvents4Club.getSportEventsByOrganizingEntity("ORG-3");
         SportEvent sportEvent1 = it.next();
-        Assert.assertEquals("EV-1104", sportEvent1.getEventId());
+        Assert.assertEquals("EV-1103", sportEvent1.getEventId());
 
         SportEvent sportEvent2 = it.next();
-        Assert.assertEquals("EV-1103", sportEvent2.getEventId());
+        Assert.assertEquals("EV-1104", sportEvent2.getEventId());
 
         SportEvent sportEvent3 = it.next();
         Assert.assertEquals("EV-1105", sportEvent3.getEventId());
