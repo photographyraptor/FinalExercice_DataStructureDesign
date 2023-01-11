@@ -1,6 +1,5 @@
 package uoc.ds.pr;
 
-import edu.uoc.ds.adt.nonlinear.graphs.Vertex;
 import edu.uoc.ds.traversal.Iterator;
 import org.junit.After;
 import org.junit.Assert;

@@ -67,6 +67,10 @@ public class File {
         return null;
     }
 
+    public OrganizingEntity getOrganizingEntity() {
+        return this.organization;
+    }
+
     public void setRecordId(String recordId) {
         this.recordId = recordId;
     }

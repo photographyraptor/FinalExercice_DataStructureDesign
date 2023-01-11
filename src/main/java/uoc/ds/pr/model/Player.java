@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import edu.uoc.ds.adt.sequential.LinkedList;
 import edu.uoc.ds.adt.sequential.List;
 import edu.uoc.ds.traversal.Iterator;
+import uoc.ds.pr.SportEvents4Club;
 
 public class Player {
     private String id;
@@ -12,6 +13,7 @@ public class Player {
     private String surname;
     private List<SportEvent> events;
     private LocalDate birthday;
+    private SportEvents4Club.Level level;
 
 	public Player(String idUser, String name, String surname, LocalDate birthday) {
         this.setId(idUser);
@@ -38,20 +40,25 @@ public class Player {
     }
 
     public String getId() {
-        return id;
+        return this.id;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getSurname() {
-        return surname;
+        return this.surname;
     }
 
     public LocalDate getBirthday() {
-        return birthday;
+        return this.birthday;
     }
+
+    public SportEvents4Club.Level getLevel() {
+        return this.level;
+    }
+
     public boolean is(String playerID) {
         return id.equals(playerID);
     }

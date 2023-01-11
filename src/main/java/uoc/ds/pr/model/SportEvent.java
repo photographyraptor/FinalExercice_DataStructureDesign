@@ -98,7 +98,12 @@ public class SportEvent implements Comparable<SportEvent> {
     }
 
     public File getFile() {
-        return file;
+        return this.file;
+    }
+
+    public OrganizingEntity getOrganizingEntity() {
+        File f = getFile();
+        return f.getOrganizingEntity();
     }
 
     public void setFile(File file) {
@@ -148,6 +153,10 @@ public class SportEvent implements Comparable<SportEvent> {
 
     public int numPlayers() {
         return enrollments.size();
+    }
+    
+    public int numAttenders() {
+        return 0;
     }
 
     public void incSubstitutes() {

@@ -15,7 +15,7 @@ public class DateUtils {
         try {
             ret = sdf.parse(date);
         } catch (ParseException e) {
-            e.printStackTrace(); // TODO hacer algo aquí, pero no comerse la excepción
+            e.printStackTrace();
         }
         return ret;
     }
