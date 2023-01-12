@@ -65,6 +65,10 @@ public class Player {
         return id.equals(playerID);
     }
 
+    public void addRating(Rating rating) {
+        ratings.insertEnd(rating);
+    }
+
     public void addEvent(SportEvent sportEvent) {
         events.insertEnd(sportEvent);
     }

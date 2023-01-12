@@ -123,6 +123,7 @@ public class SportEvent implements Comparable<SportEvent> {
         Rating newRating = new Rating(rating, message, player);
         ratings.insertEnd(newRating);
         sumRating+=rating.getValue();
+        player.addRating(newRating);
     }
 
     public boolean hasRatings() {

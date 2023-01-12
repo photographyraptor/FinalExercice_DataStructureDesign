@@ -305,7 +305,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
             throw new AttenderAlreadyExistsException();
         }
 
-        if (s.numAttenders() < s.getMax()){
+        if (s.numAttenders() + s.numPlayers() < s.getMax()){
             s.addAttender(a);
         } else {
             throw new LimitExceededException();
@@ -346,14 +346,14 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
     @Override
     public Iterator<OrganizingEntity> best5OrganizingEntities() throws NoAttendersException {
         Iterator<String> keys = this.organizingEntities.keys();
+        int totalAttenders = 0;
         while (keys.hasNext()) {
             OrganizingEntity o = getOrganizingEntity(keys.next());
-
-            if (o.numAttenders() == 0){
-                throw new NoAttendersException();
-            } else {
-                best5OrganizingEntities.update(o); //TODO revisar que hace aqui ?
-            }
+            totalAttenders += o.numAttenders();
+            best5OrganizingEntities.update(o);            
+        }
+        if (totalAttenders == 0) {
+            throw new NoAttendersException();
         }
         return best5OrganizingEntities.values();
     }
@@ -369,7 +369,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
 
         while (se_it.hasNext()){
             SportEvent bestSportEvent2 = se_it.next();
-            if (bestSportEvent.compareTo(bestSportEvent2) < 0) {
+            if (bestSportEvent.compareTo(bestSportEvent2) > 0) {
                 bestSportEvent = bestSportEvent2;
             }
         }
