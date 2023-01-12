@@ -5,9 +5,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import uoc.ds.pr.exceptions.*;
-import uoc.ds.pr.model.*;
-import uoc.ds.pr.util.*;
+import uoc.ds.pr.model.Player;
+import uoc.ds.pr.model.Rating;
+import uoc.ds.pr.model.File;
+import uoc.ds.pr.model.SportEvent;
+import uoc.ds.pr.util.ResourceUtil;
 
 import static uoc.ds.pr.util.DateUtils.createLocalDate;
 

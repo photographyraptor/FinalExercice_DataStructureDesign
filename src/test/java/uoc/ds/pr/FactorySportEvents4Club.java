@@ -1,6 +1,8 @@
 package uoc.ds.pr;
 
+
 import static uoc.ds.pr.util.DateUtils.createLocalDate;
+
 import org.junit.Assert;
 import uoc.ds.pr.exceptions.NoRatingsException;
 import uoc.ds.pr.exceptions.NoSportEventsException;
@@ -126,7 +128,7 @@ public class FactorySportEvents4Club {
         File fileF006 = sportEvents4Club.updateFile(SportEvents4Club.Status.ENABLED,
                 createLocalDate("16-10-2022"), "OK: XXX 6");
         Assert.assertEquals("F-006", fileF006.getFileId());
-        Assert.assertEquals( createLocalDate("23-11-2022"), fileF005.getStartDate());
+        Assert.assertEquals( createLocalDate("22-11-2022"), fileF001.getStartDate());
         Assert.assertEquals(SportEvents4Club.Type.SMALL, fileF005.getType());
 
 

@@ -550,7 +550,7 @@ public interface SportEvents4Club {
     public int numSportEventsByPlayer(String playerId);
     public int numPlayersBySportEvent(String sportEventId);
     public int numSportEventsByOrganizingEntity(String orgId);
-    public  int numSubstitutesBySportEvent(String sportEventId);
+    public int numSubstitutesBySportEvent(String sportEventId);
 
     public Player getPlayer(String playerId);
 

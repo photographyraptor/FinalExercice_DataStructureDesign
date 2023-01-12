@@ -47,7 +47,7 @@ public class SportEvent implements Comparable<SportEvent> {
         setMax(max);
         setFile(file);
         this.enrollments = new QueueArrayImpl<Enrollment>(MAX_NUM_ENROLLMENT);
-        this.substitutues = new PriorityQueue<Enrollment>();
+        this.substitutues = new PriorityQueue<Enrollment>(MAX_NUM_ENROLLMENT);
         this.ratings = new LinkedList<Rating>();
         this.workers = new LinkedList<Worker>();
         this.attenders = new HashTable<String, Attender>();
@@ -147,7 +147,8 @@ public class SportEvent implements Comparable<SportEvent> {
 
     @Override
     public int compareTo(SportEvent se2) {
-        return Double.compare(rating(), se2.rating());
+        return this.getEventId().compareTo(se2.getEventId());
+        //return Double.compare(rating(), se2.rating());
     }
 
     public boolean isFull() {
@@ -159,7 +160,7 @@ public class SportEvent implements Comparable<SportEvent> {
     }
 
     public int numPlayers() {
-        return enrollments.size();
+        return enrollments.size() + substitutues.size();
     }
     
     public int numAttenders() {

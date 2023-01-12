@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import edu.uoc.ds.adt.sequential.LinkedList;
 import edu.uoc.ds.traversal.Iterator;
 import uoc.ds.pr.SportEvents4Club;
+import uoc.ds.pr.helper.LevelHelper;
 
 public class Player {
     private String id;
@@ -57,7 +58,7 @@ public class Player {
     }
 
     public SportEvents4Club.Level getLevel() {
-        return this.level;
+        return LevelHelper.getLevel(this.ratings.size());
     }
 
     public boolean is(String playerID) {

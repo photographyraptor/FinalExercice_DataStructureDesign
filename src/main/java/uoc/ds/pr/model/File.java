@@ -9,6 +9,7 @@ public class File implements Comparable<File> {
     private String eventId;
     private String description;
     private String recordId;
+    private byte resources;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate dateStatus;
@@ -34,15 +35,11 @@ public class File implements Comparable<File> {
     
     @Override
     public int compareTo(File file) {
-        //TODO esto falla
-        LocalDate fileStartDate = file.getStartDate();
-        int beforeOrAfter = startDate.compareTo(fileStartDate);
+        int beforeOrAfter = startDate.compareTo(file.getStartDate());
         if (beforeOrAfter != 0) {
             return beforeOrAfter;
         }
-        var o1 = type.ordinal();
-        var o2 = file.type.ordinal();
-        return Double.compare(o1, o2);
+        return Double.compare(file.type.ordinal(), type.ordinal());
     }
 
     public String getEventId() {
@@ -55,6 +52,10 @@ public class File implements Comparable<File> {
 
     public String getDescription() {
         return description;
+    }
+
+    public byte getResources() {
+        return resources;
     }
 
     public void setDescription(String description) {
@@ -74,7 +75,7 @@ public class File implements Comparable<File> {
     }
 
     public SportEvents4Club.Type getType() {
-        return null;
+        return this.type;
     }
 
     public OrganizingEntity getOrganizingEntity() {

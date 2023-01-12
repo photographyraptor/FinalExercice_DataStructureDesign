@@ -1,6 +1,8 @@
 package uoc.ds.pr;
 
 import java.time.LocalDate;
+
+import edu.uoc.ds.adt.helpers.Position;
 import edu.uoc.ds.adt.nonlinear.DictionaryAVLImpl;
 import edu.uoc.ds.adt.nonlinear.HashTable;
 import edu.uoc.ds.adt.nonlinear.PriorityQueue;
@@ -47,7 +49,12 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
     @Override
     public void addOrganizingEntity(String id, String name, String description) {
         OrganizingEntity o = new OrganizingEntity(id, name, description);
-        organizingEntities.put(id, o);
+        
+        if (this.organizingEntities.containsKey(id)) {
+            organizingEntities.delete(id); //TODO: HashTable put method not updating, only adding
+        }
+
+        organizingEntities.put(id, o);     
     }
 
     @Override
@@ -189,7 +196,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
     public void addRole(String roleId, String description) {
         Role r = getRole(roleId);
         if (r != null) {
-            r.setDescription(description); //TODO: mirar si actualiza item del array
+            r.setDescription(description);
         } else {
             r = new Role(roleId, description);
             roles[numRoles++] = r;
@@ -199,8 +206,19 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
     @Override
     public void addWorker(String dni, String name, String surname, LocalDate birthDay, String roleId) {
         Role r = getRole(roleId);
-        Worker w = r.getWorkerByDni(dni);
-        r.putWorker(w);
+        Worker old_w = getWorker(dni);
+        Worker new_w = new Worker(dni, name, surname, birthDay, roleId);    
+        
+        if (old_w == null) {
+            r.getWorkers().insertEnd(new_w);
+        }
+        else if (old_w.getRoleId() == new_w.getRoleId()) {
+            r.updateWorker(r, new_w);
+        }
+        else {
+            Role oldRole = getRole(old_w.getRoleId());
+            r.updateWorker(oldRole, new_w);
+        }
     }
     
     @Override
@@ -283,7 +301,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
         SportEvent s = getSportEvent(eventId);
         Attender a = new Attender(phone, name);
 
-        if (s.getAttenderByPhone(phone) == null) {
+        if (s.getAttenderByPhone(phone) != null) {
             throw new AttenderAlreadyExistsException();
         }
 
@@ -412,7 +430,8 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
 
     @Override
     public int numFiles() {
-        return this.files.size();
+        return totalFiles;
+        //return this.files.size(); //TODO: numfiles vs total
     }
 
     @Override

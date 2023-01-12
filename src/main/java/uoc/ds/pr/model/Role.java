@@ -1,6 +1,9 @@
 package uoc.ds.pr.model;
 
+import edu.uoc.ds.adt.helpers.Position;
 import edu.uoc.ds.adt.sequential.LinkedList;
+import edu.uoc.ds.adt.sequential.List;
+import edu.uoc.ds.traversal.Iterator;
 
 public class Role {
     private String roleId;
@@ -45,20 +48,15 @@ public class Role {
         return null;
     }
 
-    public void putWorker(Worker w) {
-        var worker_it = getWorkers().values();
-        boolean updated = false;
-        
-        while (worker_it.hasNext() && !updated) {
-            var nextWorker = worker_it.next();
-            if (nextWorker.getDni() == w.getDni()) {
-                nextWorker = w; //TODO: revisar si actualiza bien
-                updated = true;
+    public void updateWorker(Role oldRole, Worker newWorker) {
+        var pos_workers = oldRole.getWorkers().positions();            
+        while (pos_workers.hasNext()) {
+            Position<Worker> next_worker = pos_workers.next();
+            if (next_worker.getElem().getDni() == newWorker.getDni()) {
+                oldRole.getWorkers().delete(next_worker);
+                this.workers.insertEnd(newWorker);
+                break;
             }
-        }
-
-        if (!updated) {
-            this.workers.insertEnd(w);
         }
     }
 }
