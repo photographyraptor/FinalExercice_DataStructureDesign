@@ -423,8 +423,10 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
 
         while(it_pfs.hasNext()) {
             Vertex<Player> v_pf = it_pfs.next();
-            Player pf = v_pf.getValue();
-            hash_pfs.put(pf.getId(), pf);
+            if (this.followers.getEdge(v_p, v_pf) != null) {
+                Player pf = v_pf.getValue();
+                hash_pfs.put(pf.getId(), pf);
+            }
         }        
         
         return hash_pfs.values();
@@ -446,14 +448,16 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
         if (!it_e_p_pf.hasNext()) {
             throw new NoFollowingException();
         }
-        //TODO: fixing here
+        
         HashTable<String, Player> hash_ps = new HashTable<String, Player>();
-        Iterator<Vertex<Player>> it_ps = this.followers.(v_pf);
+        Iterator<Vertex<Player>> it_ps = this.followers.adjacencyList(v_pf);
 
         while(it_ps.hasNext()) {
             Vertex<Player> v_p = it_ps.next();
-            Player p = v_p.getValue();
-            hash_ps.put(p.getId(), p);
+            if (this.followers.getEdge(v_p, v_pf) != null) {
+                Player p = v_p.getValue();
+                hash_ps.put(p.getId(), p);
+            }
         }        
         
         return hash_ps.values();
