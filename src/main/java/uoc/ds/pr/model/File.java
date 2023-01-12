@@ -4,13 +4,11 @@ import uoc.ds.pr.SportEvents4Club;
 
 import java.time.LocalDate;
 
-public class File {
-
+public class File implements Comparable<File> {
     private final SportEvents4Club.Type type;
     private String eventId;
     private String description;
     private String recordId;
-    private byte resources;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate dateStatus;
@@ -33,7 +31,19 @@ public class File {
         this.status = SportEvents4Club.Status.PENDING;
         this.organization = organization;
     }
-
+    
+    @Override
+    public int compareTo(File file) {
+        //TODO esto falla
+        LocalDate fileStartDate = file.getStartDate();
+        int beforeOrAfter = startDate.compareTo(fileStartDate);
+        if (beforeOrAfter != 0) {
+            return beforeOrAfter;
+        }
+        var o1 = type.ordinal();
+        var o2 = file.type.ordinal();
+        return Double.compare(o1, o2);
+    }
 
     public String getEventId() {
         return eventId;
@@ -107,6 +117,10 @@ public class File {
 
     public boolean isEnabled() {
         return this.status == SportEvents4Club.Status.ENABLED;
+    }
+
+    public boolean isPending() {
+        return this.status == SportEvents4Club.Status.PENDING;
     }
 
     public SportEvent newSportEvent() {

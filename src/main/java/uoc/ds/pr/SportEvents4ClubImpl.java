@@ -17,7 +17,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
     private PriorityQueue<File> files;
     private DictionaryAVLImpl<String, SportEvent> sportEvents;
     private OrderedVector<SportEvent> bestSportEvent;
-    //private LinkedList<Worker> workers;
+    private OrderedVector<OrganizingEntity> best5OrganizingEntities;
     private Role[] roles;
     private int numRoles;
     
@@ -31,7 +31,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
         this.files = new PriorityQueue<>();
         this.sportEvents = new DictionaryAVLImpl<String, SportEvent>();
         this.bestSportEvent = new OrderedVector<SportEvent>(MAX_NUM_SPORT_EVENTS, SportEvent.CMP_V);
-        //this.workers = new LinkedList<Worker>();
+        this.best5OrganizingEntities = new OrderedVector<OrganizingEntity>(MAX_ORGANIZING_ENTITIES_WITH_MORE_ATTENDERS, OrganizingEntity.CMP_O);
         this.roles = new Role[MAX_ROLES];
         this.numRoles = 0;
         this.totalFiles = 0;
@@ -96,7 +96,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
             sportEvent.addEnrollment(player);
         }
         else {
-            sportEvent.addEnrollmentAsSubstitute(player);
+            sportEvent.addSubstitute(player);
             throw new LimitExceededException();
         }
 
@@ -200,200 +200,356 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
     public void addWorker(String dni, String name, String surname, LocalDate birthDay, String roleId) {
         Role r = getRole(roleId);
         Worker w = r.getWorkerByDni(dni);
-        
-        if (w == null) {
-            // add to r
-        }
-        else {
-            // update w in r
-        }
+        r.putWorker(w);
     }
-//TODO me quedé aqui
+    
     @Override
     public void assignWorker(String dni, String eventId) throws WorkerNotFoundException, WorkerAlreadyAssignedException, SportEventNotFoundException {
+        if (!sportEvents.containsKey(eventId)){
+            throw new SportEventNotFoundException();
+        }
 
+        Worker w = getWorker(dni);
+
+        if (w == null) {
+            throw new WorkerNotFoundException();
+        }
+
+        SportEvent s = sportEvents.get(eventId);
+
+        if (s.getWorkerByDni(dni) != null){
+            throw new WorkerAlreadyAssignedException();
+        } else {
+            s.addWorker(w);
+        }
     }
 
     @Override
     public Iterator<Worker> getWorkersBySportEvent(String eventId) throws SportEventNotFoundException, NoWorkersException {
-        return null;
+        if (!sportEvents.containsKey(eventId)){
+            throw new SportEventNotFoundException();
+        }
+
+        SportEvent s = sportEvents.get(eventId);
+
+        if (s.getWorkers().isEmpty()) {
+            throw new NoWorkersException();
+        } else {
+            return s.getWorkers().values();
+        }
     }
 
     @Override
     public Iterator<Worker> getWorkersByRole(String roleId) throws NoWorkersException {
-        return null;
+        Role r = getRole(roleId);
+        LinkedList<Worker> workers = r.getWorkers();
+
+        if (workers.isEmpty()){
+            throw new NoWorkersException();
+        }
+        
+        return workers.values();        
     }
 
     @Override
     public Level getLevel(String playerId) throws PlayerNotFoundException {
-        return null;
+        Player p = getPlayer(playerId);
+        if (p == null) {
+            throw new PlayerNotFoundException();
+        } else {
+            return p.getLevel();
+        }
     }
 
     @Override
     public Iterator<Enrollment> getSubstitutes(String eventId) throws SportEventNotFoundException, NoSubstitutesException {
-        return null;
+        if (!sportEvents.containsKey(eventId)){
+            throw new SportEventNotFoundException();
+        }
+
+        SportEvent s = getSportEvent(eventId);
+
+        if (s.hasNoSubstitutes()){
+            throw new NoSubstitutesException();
+        }
+        return s.getSubstitutes().values();        
     }
 
     @Override
     public void addAttender(String phone, String name, String eventId) throws AttenderAlreadyExistsException, SportEventNotFoundException, LimitExceededException {
+        if (!sportEvents.containsKey(eventId)){
+            throw new SportEventNotFoundException();
+        }
+        SportEvent s = getSportEvent(eventId);
+        Attender a = new Attender(phone, name);
 
+        if (s.getAttenderByPhone(phone) == null) {
+            throw new AttenderAlreadyExistsException();
+        }
+
+        if (s.numAttenders() < s.getMax()){
+            s.addAttender(a);
+        } else {
+            throw new LimitExceededException();
+        }
     }
 
     @Override
     public Attender getAttender(String phone, String sportEventId) throws SportEventNotFoundException, AttenderNotFoundException {
-        return null;
+        if (!sportEvents.containsKey(sportEventId)){
+            throw new SportEventNotFoundException();
+        }
+
+        SportEvent s = getSportEvent(sportEventId);
+
+        Attender a = s.getAttenderByPhone(phone);
+        if (a == null) {
+            throw new AttenderNotFoundException();
+        }
+        return a;
     }
 
     @Override
     public Iterator<Attender> getAttenders(String eventId) throws SportEventNotFoundException, NoAttendersException {
-        return null;
+        if (!sportEvents.containsKey(eventId)){
+            throw new SportEventNotFoundException();
+        }
+
+        SportEvent s = getSportEvent(eventId);
+
+        HashTable<String, Attender> attenders = s.getAttenders();
+
+        if (attenders.isEmpty()){
+            throw new NoAttendersException();
+        }
+        return attenders.values();
     }
 
     @Override
     public Iterator<OrganizingEntity> best5OrganizingEntities() throws NoAttendersException {
-        return null;
+        Iterator<String> keys = this.organizingEntities.keys();
+        while (keys.hasNext()) {
+            OrganizingEntity o = getOrganizingEntity(keys.next());
+
+            if (o.numAttenders() == 0){
+                throw new NoAttendersException();
+            } else {
+                best5OrganizingEntities.update(o); //TODO revisar que hace aqui ?
+            }
+        }
+        return best5OrganizingEntities.values();
     }
 
     @Override
     public SportEvent bestSportEventByAttenders() throws NoSportEventsException {
-        return null;
+        Iterator<SportEvent> se_it = sportEvents.values();
+        if (se_it == null){
+            throw new NoSportEventsException();
+        }
+
+        SportEvent bestSportEvent = se_it.next();
+
+        while (se_it.hasNext()){
+            SportEvent bestSportEvent2 = se_it.next();
+            if (bestSportEvent.compareTo(bestSportEvent2) < 0) {
+                bestSportEvent = bestSportEvent2;
+            }
+        }
+        return bestSportEvent;
     }
 
+//TODO: funciones por hacer
     @Override
     public void addFollower(String playerId, String playerFollowerId) throws PlayerNotFoundException {
-
+        throw new PlayerNotFoundException();
     }
 
     @Override
     public Iterator<Player> getFollowers(String playerId) throws PlayerNotFoundException, NoFollowersException {
-        return null;
+        if (1 == 0) {
+            throw new PlayerNotFoundException();
+        } else {
+            throw new NoFollowersException();
+        }
     }
 
     @Override
     public Iterator<Player> getFollowings(String playerId) throws PlayerNotFoundException, NoFollowingException {
-        return null;
+        if (1 == 0) {
+            throw new PlayerNotFoundException();
+        } else {
+            throw new NoFollowingException();
+        }
     }
 
     @Override
     public Iterator<Player> recommendations(String playerId) throws PlayerNotFoundException, NoFollowersException {
-        return null;
+        if (1 == 0){
+            throw new PlayerNotFoundException();
+        } else {
+            throw new NoFollowersException();
+        }
     }
 
     @Override
     public Iterator<Post> getPosts(String playerId) throws PlayerNotFoundException, NoPostsException {
-        return null;
+        if (1 == 0){
+            throw new PlayerNotFoundException();
+        } else {
+            throw new NoPostsException();
+        }
     }
-
+//TODO: end pending functions
     @Override
     public int numPlayers() {
-        return 0;
+        return this.players.size();
     }
 
     @Override
     public int numOrganizingEntities() {
-        return 0;
+        return this.organizingEntities.size();
     }
 
     @Override
     public int numFiles() {
-        return 0;
+        return this.files.size();
     }
 
     @Override
     public int numRejectedFiles() {
-        return 0;
+        return this.rejectedFiles;
     }
 
     @Override
     public int numPendingFiles() {
-        return 0;
+        Iterator<File> file_it = this.files.values();
+        int pendingFilesCount = 0;
+
+        while(file_it.hasNext()) {
+            File f = file_it.next();
+            if (f.isPending()) {
+                pendingFilesCount++;
+            }
+        }
+
+        return pendingFilesCount;
     }
 
     @Override
     public int numSportEvents() {
-        return 0;
+        return this.sportEvents.size();
     }
 
     @Override
     public int numSportEventsByPlayer(String playerId) {
-        return 0;
+        Player player = getPlayer(playerId);
+        return player != null ? player.numEvents() : 0;
     }
 
     @Override
     public int numPlayersBySportEvent(String sportEventId) {
-        return 0;
+        SportEvent sportEvent = getSportEvent(sportEventId);
+        return sportEvent != null ? sportEvent.numPlayers() : 0;
     }
 
     @Override
     public int numSportEventsByOrganizingEntity(String orgId) {
-        return 0;
+        OrganizingEntity orEntity = getOrganizingEntity(orgId);
+        return orEntity != null ? orEntity.numEvents() : 0;
     }
 
     @Override
     public int numSubstitutesBySportEvent(String sportEventId) {
-        return 0;
+        SportEvent sportEvent = getSportEvent(sportEventId);
+        return sportEvent != null ? sportEvent.numSubstitutes() : 0;
     }
 
     @Override
     public Player getPlayer(String playerId) {
-        return null;
+        return this.players.get(playerId);
     }
 
     @Override
     public SportEvent getSportEvent(String eventId) {
-        return null;
+        return this.sportEvents.get(eventId);
     }
 
     @Override
     public OrganizingEntity getOrganizingEntity(String id) {
-        return null;
+        return this.organizingEntities.get(id);
     }
 
     @Override
     public File currentFile() {
-        return null;
+        return files.size() > 0 ? files.peek() : null;
     }
 
     @Override
     public int numRoles() {
-        return 0;
+        return this.numRoles;
     }
 
     @Override
     public Role getRole(String roleId) {
+        for (Role r : this.roles) {
+            if (r != null && r.getRoleId().equals(roleId)){
+                return r;
+            }
+        }
         return null;
     }
 
     @Override
     public int numWorkers() {
-        return 0;
+        int workersCount = 0;
+        for (Role r : this.roles) {
+            if (r != null) {
+                workersCount += r.numWorkers();
+            }
+        }
+        return workersCount;
     }
 
     @Override
     public Worker getWorker(String dni) {
+        for (Role r : this.roles) {
+            if (r == null) { continue; }
+
+            Worker w = r.getWorkerByDni(dni);
+            if (w == null) { continue; }
+
+            return w;            
+        }
         return null;
     }
 
     @Override
     public int numWorkersByRole(String roleId) {
-        return 0;
+        Role role = getRole(roleId);
+        return role != null ? role.numWorkers() : 0;
     }
 
     @Override
     public int numWorkersBySportEvent(String sportEventId) {
-        return 0;
+        SportEvent s = getSportEvent(sportEventId);
+        return s.numWorkers();
     }
 
     @Override
     public int numRatings(String playerId) {
-        return 0;
+        Player p = getPlayer(playerId);
+        return p.numRatings();
     }
 
     @Override
     public int numAttenders(String sportEventId) {
-        return 0;
+        SportEvent s = getSportEvent(sportEventId);
+        if (s == null){
+            return 0;
+        }
+        return s.numAttenders();
     }
-
+//TODO: funciones faltan
     @Override
     public int numFollowers(String playerId) {
         return 0;
@@ -403,7 +559,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
     public int numFollowings(String playerId) {
         return 0;
     }    
-    
+//TODO: fin faltan funcs
     private void updateMostActivePlayer(Player player) {
         if (mostActivePlayer == null) {
             mostActivePlayer = player;

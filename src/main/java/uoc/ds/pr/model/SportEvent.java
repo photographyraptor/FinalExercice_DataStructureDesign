@@ -1,5 +1,7 @@
 package uoc.ds.pr.model;
 
+import edu.uoc.ds.adt.nonlinear.HashTable;
+import edu.uoc.ds.adt.nonlinear.PriorityQueue;
 import edu.uoc.ds.adt.sequential.LinkedList;
 import edu.uoc.ds.adt.sequential.List;
 import edu.uoc.ds.adt.sequential.Queue;
@@ -29,9 +31,10 @@ public class SportEvent implements Comparable<SportEvent> {
     private List<Rating> ratings;
     private double sumRating;
 
-    private int numSubstitutes;
-
+    private LinkedList<Worker> workers;
     private Queue<Enrollment> enrollments;
+    private PriorityQueue<Enrollment> substitutues;
+    private HashTable<String, Attender> attenders;
 
 
     public SportEvent(String eventId, String description, SportEvents4Club.Type type,
@@ -43,11 +46,12 @@ public class SportEvent implements Comparable<SportEvent> {
         setType(type);
         setMax(max);
         setFile(file);
-        this.enrollments = new QueueArrayImpl<>(MAX_NUM_ENROLLMENT);
-        this.ratings = new LinkedList<>();
-        numSubstitutes = 0;
+        this.enrollments = new QueueArrayImpl<Enrollment>(MAX_NUM_ENROLLMENT);
+        this.substitutues = new PriorityQueue<Enrollment>();
+        this.ratings = new LinkedList<Rating>();
+        this.workers = new LinkedList<Worker>();
+        this.attenders = new HashTable<String, Attender>();
     }
-
 
     public String getEventId() {
         return eventId;
@@ -129,13 +133,12 @@ public class SportEvent implements Comparable<SportEvent> {
         return ratings.values();
     }
 
-
     public void addEnrollment(Player player) {
-        addEnrollment(player, false);
+        enrollments.add(new Enrollment(player, false));
     }
 
-    public void addEnrollment(Player player, boolean isSubstitute) {
-        enrollments.add(new Enrollment(player, isSubstitute));
+    public void addSubstitute(Player player) {
+        substitutues.add(new Enrollment(player, true));
     }
 
     public boolean is(String eventId) {
@@ -144,11 +147,15 @@ public class SportEvent implements Comparable<SportEvent> {
 
     @Override
     public int compareTo(SportEvent se2) {
-        return Double.compare(rating(), se2.rating() );
+        return Double.compare(rating(), se2.rating());
     }
 
     public boolean isFull() {
         return (enrollments.size()>=max);
+    }
+
+    public boolean hasNoSubstitutes() {
+        return (substitutues.size() == 0);
     }
 
     public int numPlayers() {
@@ -156,20 +163,54 @@ public class SportEvent implements Comparable<SportEvent> {
     }
     
     public int numAttenders() {
-        return 0;
+        return this.attenders.size();
     }
 
-    public void incSubstitutes() {
-        numSubstitutes++;
+    public int numSubstitutes() {
+        return this.substitutues.size();
     }
 
-    public void addEnrollmentAsSubstitute(Player player) {
-        addEnrollment(player, true);
-        incSubstitutes();
+    public HashTable<String, Attender> getAttenders() {
+        return this.attenders;
     }
 
-    public int getNumSubstitutes() {
-        return numSubstitutes;
+    public Attender getAttenderByPhone(String phone) {
+        return this.attenders.get(phone);
     }
 
+    public void addAttender(Attender attender) {
+        this.attenders.put(attender.getPhone(), attender);
+    }
+    
+    public LinkedList<Worker> getWorkers() {
+        return this.workers;
+    }
+
+    public int numWorkers() {
+        return this.workers.size();
+    }
+
+    public Worker getWorkerByDni(String dni) {
+        var worker_it = getWorkers().values();
+        
+        while (worker_it.hasNext()) {
+            var nextWorker = worker_it.next();
+            if (nextWorker.getDni() == dni) {
+                return nextWorker;
+            }
+        }
+        return null;
+    }
+    
+    public void addWorker(Worker w) {
+        this.workers.insertEnd(w);
+    }
+
+    public Queue<Enrollment> getEnrollments() {
+        return this.enrollments;
+    }
+
+    public Queue<Enrollment> getSubstitutes() {
+        return this.substitutues;
+    }
 }

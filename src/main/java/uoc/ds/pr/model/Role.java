@@ -13,6 +13,10 @@ public class Role {
         this.workers = new LinkedList<Worker>();
     }
 
+    public String getRoleId() {
+        return this.roleId;
+    }
+
     public String getDescription() {
         return this.description;
     }
@@ -25,6 +29,10 @@ public class Role {
         return this.workers;
     }
 
+    public int numWorkers() {
+        return this.workers.size();
+    }
+
     public Worker getWorkerByDni(String dni) {
         var worker_it = getWorkers().values();
         
@@ -35,5 +43,22 @@ public class Role {
             }
         }
         return null;
+    }
+
+    public void putWorker(Worker w) {
+        var worker_it = getWorkers().values();
+        boolean updated = false;
+        
+        while (worker_it.hasNext() && !updated) {
+            var nextWorker = worker_it.next();
+            if (nextWorker.getDni() == w.getDni()) {
+                nextWorker = w; //TODO: revisar si actualiza bien
+                updated = true;
+            }
+        }
+
+        if (!updated) {
+            this.workers.insertEnd(w);
+        }
     }
 }

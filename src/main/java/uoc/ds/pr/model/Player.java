@@ -3,7 +3,6 @@ package uoc.ds.pr.model;
 import java.time.LocalDate;
 
 import edu.uoc.ds.adt.sequential.LinkedList;
-import edu.uoc.ds.adt.sequential.List;
 import edu.uoc.ds.traversal.Iterator;
 import uoc.ds.pr.SportEvents4Club;
 
@@ -11,7 +10,8 @@ public class Player {
     private String id;
     private String name;
     private String surname;
-    private List<SportEvent> events;
+    private LinkedList<SportEvent> events;
+    private LinkedList<Rating> ratings;
     private LocalDate birthday;
     private SportEvents4Club.Level level;
 
@@ -20,7 +20,8 @@ public class Player {
         this.setName(name);
         this.setSurname(surname);
         this.setBirthday(birthday);
-        this.events = new LinkedList<>();
+        this.events = new LinkedList<SportEvent>();
+        this.ratings = new LinkedList<Rating>();
     }
 
     public void setName(String name) {
@@ -84,6 +85,10 @@ public class Player {
 
     public int numSportEvents() {
         return events.size();
+    }
+
+    public int numRatings() {
+        return ratings.size();
     }
 
     public Iterator<SportEvent> getEvents() {
