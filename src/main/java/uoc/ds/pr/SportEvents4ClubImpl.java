@@ -2,10 +2,13 @@ package uoc.ds.pr;
 
 import java.time.LocalDate;
 
-import edu.uoc.ds.adt.helpers.Position;
 import edu.uoc.ds.adt.nonlinear.DictionaryAVLImpl;
 import edu.uoc.ds.adt.nonlinear.HashTable;
 import edu.uoc.ds.adt.nonlinear.PriorityQueue;
+import edu.uoc.ds.adt.nonlinear.graphs.DirectedGraph;
+import edu.uoc.ds.adt.nonlinear.graphs.DirectedGraphImpl;
+import edu.uoc.ds.adt.nonlinear.graphs.Edge;
+import edu.uoc.ds.adt.nonlinear.graphs.Vertex;
 import edu.uoc.ds.adt.sequential.LinkedList;
 import edu.uoc.ds.traversal.Iterator;
 import uoc.ds.pr.exceptions.*;
@@ -14,6 +17,7 @@ import uoc.ds.pr.util.OrderedVector;
 
 public class SportEvents4ClubImpl implements SportEvents4Club {
     private DictionaryAVLImpl<String, Player> players;
+    private DirectedGraph<Player, Player> followers;
     private Player mostActivePlayer;
     private HashTable<String, OrganizingEntity> organizingEntities;
     private PriorityQueue<File> files;
@@ -28,6 +32,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
 
     public SportEvents4ClubImpl() {
         this.players = new DictionaryAVLImpl<String, Player>();
+        this.followers = new DirectedGraphImpl<Player, Player>();
         this.mostActivePlayer = null;
         this.organizingEntities = new HashTable<String, OrganizingEntity>();
         this.files = new PriorityQueue<>();
@@ -376,10 +381,23 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
         return bestSportEvent;
     }
 
-//TODO: funciones por hacer
     @Override
     public void addFollower(String playerId, String playerFollowerId) throws PlayerNotFoundException {
-        throw new PlayerNotFoundException();
+        Player p = getPlayer(playerId);
+        Player pf = getPlayer(playerFollowerId);
+        if (p == null || pf == null) {
+            throw new PlayerNotFoundException();
+        }
+
+        var v_p = this.followers.getVertex(p);
+        v_p = v_p != null ? v_p : this.followers.newVertex(p);
+        var v_pf = this.followers.getVertex(pf);
+        v_pf = v_pf != null ? v_pf : this.followers.newVertex(pf);
+
+        var e_p_pf = this.followers.getEdge(v_p, v_pf);
+        if (e_p_pf == null) {
+            this.followers.newEdge(v_p, v_pf);
+        }
     }
 
     @Override
@@ -417,7 +435,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
             throw new NoPostsException();
         }
     }
-//TODO: end pending functions
+
     @Override
     public int numPlayers() {
         return this.players.size();
@@ -431,7 +449,6 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
     @Override
     public int numFiles() {
         return totalFiles;
-        //return this.files.size(); //TODO: numfiles vs total
     }
 
     @Override
@@ -568,17 +585,37 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
         }
         return s.numAttenders();
     }
-//TODO: funciones faltan
+    
     @Override
     public int numFollowers(String playerId) {
-        return 0;
+        int followersCount = 0;
+        Player p = getPlayer(playerId);
+        Vertex<Player> v_p = this.followers.getVertex(p);
+        Iterator<Edge<Player, Player>> it_e_p_pf = this.followers.edgesWithSource(v_p);
+        
+        while(it_e_p_pf.hasNext()) {
+            it_e_p_pf.next();
+            followersCount++;
+        }
+
+        return followersCount;
     }
 
     @Override
     public int numFollowings(String playerId) {
-        return 0;
+        int followingsCount = 0;
+        Player pf = getPlayer(playerId);
+        Vertex<Player> v_pf = this.followers.getVertex(pf);
+        Iterator<Edge<Player, Player>> it_e_p_pf = this.followers.edgedWithDestA(v_pf);
+        
+        while(it_e_p_pf.hasNext()) {
+            it_e_p_pf.next();
+            followingsCount++;
+        }
+
+        return followingsCount;
     }    
-//TODO: fin faltan funcs
+
     private void updateMostActivePlayer(Player player) {
         if (mostActivePlayer == null) {
             mostActivePlayer = player;
