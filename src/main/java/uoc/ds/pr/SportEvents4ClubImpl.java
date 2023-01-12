@@ -11,6 +11,7 @@ import edu.uoc.ds.adt.nonlinear.graphs.Edge;
 import edu.uoc.ds.adt.nonlinear.graphs.Vertex;
 import edu.uoc.ds.adt.sequential.LinkedList;
 import edu.uoc.ds.traversal.Iterator;
+import edu.uoc.ds.traversal.IteratorArrayImpl;
 import uoc.ds.pr.exceptions.*;
 import uoc.ds.pr.model.*;
 import uoc.ds.pr.util.OrderedVector;
@@ -402,20 +403,60 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
 
     @Override
     public Iterator<Player> getFollowers(String playerId) throws PlayerNotFoundException, NoFollowersException {
-        if (1 == 0) {
+        Player p = getPlayer(playerId);
+        if (p == null) {
             throw new PlayerNotFoundException();
-        } else {
+        }
+
+        Vertex<Player> v_p = this.followers.getVertex(p);
+        if (v_p == null) {
             throw new NoFollowersException();
         }
+
+        Iterator<Edge<Player, Player>> it_e_p_pf = this.followers.edgesWithSource(v_p);
+        if (!it_e_p_pf.hasNext()) {
+            throw new NoFollowersException();
+        }
+        
+        HashTable<String, Player> hash_pfs = new HashTable<String, Player>();
+        Iterator<Vertex<Player>> it_pfs = this.followers.adjacencyList(v_p);
+
+        while(it_pfs.hasNext()) {
+            Vertex<Player> v_pf = it_pfs.next();
+            Player pf = v_pf.getValue();
+            hash_pfs.put(pf.getId(), pf);
+        }        
+        
+        return hash_pfs.values();
     }
 
     @Override
     public Iterator<Player> getFollowings(String playerId) throws PlayerNotFoundException, NoFollowingException {
-        if (1 == 0) {
+        Player pf = getPlayer(playerId);
+        if (pf == null) {
             throw new PlayerNotFoundException();
-        } else {
+        }
+
+        Vertex<Player> v_pf = this.followers.getVertex(pf);
+        if (v_pf == null) {
             throw new NoFollowingException();
         }
+
+        Iterator<Edge<Player, Player>> it_e_p_pf = this.followers.edgedWithDestA(v_pf);
+        if (!it_e_p_pf.hasNext()) {
+            throw new NoFollowingException();
+        }
+        //TODO: fixing here
+        HashTable<String, Player> hash_ps = new HashTable<String, Player>();
+        Iterator<Vertex<Player>> it_ps = this.followers.(v_pf);
+
+        while(it_ps.hasNext()) {
+            Vertex<Player> v_p = it_ps.next();
+            Player p = v_p.getValue();
+            hash_ps.put(p.getId(), p);
+        }        
+        
+        return hash_ps.values();
     }
 
     @Override
@@ -585,7 +626,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
         }
         return s.numAttenders();
     }
-    
+
     @Override
     public int numFollowers(String playerId) {
         int followersCount = 0;
