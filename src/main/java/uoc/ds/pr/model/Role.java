@@ -2,8 +2,6 @@ package uoc.ds.pr.model;
 
 import edu.uoc.ds.adt.helpers.Position;
 import edu.uoc.ds.adt.sequential.LinkedList;
-import edu.uoc.ds.adt.sequential.List;
-import edu.uoc.ds.traversal.Iterator;
 
 public class Role {
     private String roleId;

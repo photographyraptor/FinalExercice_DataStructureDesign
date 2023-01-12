@@ -23,6 +23,7 @@ public class Player {
         this.setBirthday(birthday);
         this.events = new LinkedList<SportEvent>();
         this.ratings = new LinkedList<Rating>();
+        getLevel();
     }
 
     public void setName(String name) {
@@ -58,7 +59,8 @@ public class Player {
     }
 
     public SportEvents4Club.Level getLevel() {
-        return LevelHelper.getLevel(this.ratings.size());
+        this.level = LevelHelper.getLevel(this.ratings.size());
+        return this.level;
     }
 
     public boolean is(String playerID) {

@@ -11,7 +11,6 @@ import edu.uoc.ds.adt.nonlinear.graphs.Edge;
 import edu.uoc.ds.adt.nonlinear.graphs.Vertex;
 import edu.uoc.ds.adt.sequential.LinkedList;
 import edu.uoc.ds.traversal.Iterator;
-import edu.uoc.ds.traversal.IteratorArrayImpl;
 import uoc.ds.pr.exceptions.*;
 import uoc.ds.pr.model.*;
 import uoc.ds.pr.util.OrderedVector;
@@ -57,7 +56,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
         OrganizingEntity o = new OrganizingEntity(id, name, description);
         
         if (this.organizingEntities.containsKey(id)) {
-            organizingEntities.delete(id); //TODO: HashTable put method not updating, only adding
+            organizingEntities.delete(id);
         }
 
         organizingEntities.put(id, o);     

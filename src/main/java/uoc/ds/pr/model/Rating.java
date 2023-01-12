@@ -21,4 +21,7 @@ public class Rating {
         return this.player;
     }
 
+    public String getMessage() {
+        return this.message;
+    }
 }
