@@ -2,6 +2,7 @@ package uoc.ds.pr;
 
 import java.time.LocalDate;
 
+import edu.uoc.ds.adt.helpers.Position;
 import edu.uoc.ds.adt.nonlinear.DictionaryAVLImpl;
 import edu.uoc.ds.adt.nonlinear.HashTable;
 import edu.uoc.ds.adt.nonlinear.PriorityQueue;
@@ -103,6 +104,9 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
             throw new SportEventNotFoundException();
         }
 
+        Post p = new Post(String.format("{'player': '%s', 'sportEvent': '%s', 'action': 'signup'}", playerId, eventId));
+        player.addPost(p);
+
         player.addEvent(sportEvent);
         if (!sportEvent.isFull()) {
             sportEvent.addEnrollment(player);
@@ -162,6 +166,9 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
         if (!player.isInSportEvent(eventId)) {
             throw new PlayerNotInSportEventException();
         }
+
+        Post p = new Post(String.format("{'player': '%s', 'sportEvent': '%s', 'rating': '%s', 'action': 'rating'}", playerId, eventId, rating.toString()));
+        player.addPost(p);
 
         sportEvent.addRating(rating, message, player);
         updateBestSportEvent(sportEvent);
@@ -464,20 +471,79 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
 
     @Override
     public Iterator<Player> recommendations(String playerId) throws PlayerNotFoundException, NoFollowersException {
-        if (1 == 0){
-            throw new PlayerNotFoundException();
-        } else {
-            throw new NoFollowersException();
+        Iterator<Player> fs_of_p = getFollowers(playerId);
+        LinkedList<Player> fs_of_fs_of_p = new LinkedList<Player>();
+        
+        while(fs_of_p.hasNext()) {
+            Player f_of_p = fs_of_p.next();
+            Iterator<Player> fs_of_f_of_p = null;
+
+            try {
+                fs_of_f_of_p = getFollowers(f_of_p.getId());
+            }
+            catch (NoFollowersException ex) { continue; }
+            
+            while(fs_of_f_of_p.hasNext()) {                
+                Player f_of_f_of_p = fs_of_f_of_p.next();
+                if (f_of_f_of_p.getId() == playerId) { continue; }
+
+                boolean alreadyFollowing = false;
+                Iterator<Player> it_followeds = getFollowers(playerId);
+               
+                while (!alreadyFollowing && it_followeds.hasNext()) {
+                    Player followed = it_followeds.next();
+                    if (followed.getId() == f_of_f_of_p.getId()) { alreadyFollowing = true;}
+                }
+                if (alreadyFollowing) { continue; }
+                
+                boolean alreadyInsert = false;
+                var pos_fs_of_fs_of_p = fs_of_fs_of_p.positions();            
+                while (!alreadyInsert && pos_fs_of_fs_of_p.hasNext()) {
+                    Position<Player> next_fs_of_fs_of_p = pos_fs_of_fs_of_p.next();
+                    if (next_fs_of_fs_of_p.getElem().getId() == f_of_f_of_p.getId()) {
+                        alreadyInsert = true;                   
+                    }
+                }
+
+                if (!alreadyInsert) {
+                    fs_of_fs_of_p.insertEnd(f_of_f_of_p);
+                }
+            }
         }
+        
+        return fs_of_fs_of_p.values();        
     }
 
     @Override
     public Iterator<Post> getPosts(String playerId) throws PlayerNotFoundException, NoPostsException {
-        if (1 == 0){
-            throw new PlayerNotFoundException();
-        } else {
+        Player p = getPlayer(playerId);
+        if (p == null) {
+           throw new PlayerNotFoundException();
+        }
+        
+        Iterator<Player> it_following = null;
+        
+        try {
+            it_following = getFollowings(playerId);
+        }
+        catch(NoFollowingException ex) { throw new NoPostsException(); }
+
+        if (!it_following.hasNext()) {
             throw new NoPostsException();
         }
+
+        LinkedList<Post> posts = new LinkedList<Post>();
+        while(it_following.hasNext()) {
+            Player next_followed = it_following.next();
+
+            Iterator<Post> it_posts_by_followed = next_followed.getPosts();
+            while(it_posts_by_followed.hasNext()) {
+                Post next_post = it_posts_by_followed.next();
+                posts.insertEnd(next_post);
+            }
+        }
+
+        return posts.values();
     }
 
     @Override

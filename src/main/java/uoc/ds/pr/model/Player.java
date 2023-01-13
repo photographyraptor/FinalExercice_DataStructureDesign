@@ -13,6 +13,7 @@ public class Player {
     private String surname;
     private LinkedList<SportEvent> events;
     private LinkedList<Rating> ratings;
+    private LinkedList<Post> posts;
     private LocalDate birthday;
     private SportEvents4Club.Level level;
 
@@ -23,6 +24,7 @@ public class Player {
         this.setBirthday(birthday);
         this.events = new LinkedList<SportEvent>();
         this.ratings = new LinkedList<Rating>();
+        this.posts = new LinkedList<Post>();
         getLevel();
     }
 
@@ -71,6 +73,10 @@ public class Player {
         ratings.insertEnd(rating);
     }
 
+    public void addPost(Post post) {
+        posts.insertEnd(post);
+    }
+
     public void addEvent(SportEvent sportEvent) {
         events.insertEnd(sportEvent);
     }
@@ -100,6 +106,10 @@ public class Player {
 
     public Iterator<SportEvent> getEvents() {
         return events.values();
+    }
+
+    public Iterator<Post> getPosts() {
+        return posts.values();
     }
 
     public boolean hasEvents() {
