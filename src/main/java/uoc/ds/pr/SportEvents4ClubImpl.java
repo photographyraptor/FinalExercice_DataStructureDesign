@@ -6,12 +6,14 @@ import edu.uoc.ds.adt.helpers.Position;
 import edu.uoc.ds.adt.nonlinear.DictionaryAVLImpl;
 import edu.uoc.ds.adt.nonlinear.HashTable;
 import edu.uoc.ds.adt.nonlinear.PriorityQueue;
+import edu.uoc.ds.adt.nonlinear.graphs.DirectedEdge;
 import edu.uoc.ds.adt.nonlinear.graphs.DirectedGraph;
 import edu.uoc.ds.adt.nonlinear.graphs.DirectedGraphImpl;
 import edu.uoc.ds.adt.nonlinear.graphs.Edge;
 import edu.uoc.ds.adt.nonlinear.graphs.Vertex;
 import edu.uoc.ds.adt.sequential.LinkedList;
 import edu.uoc.ds.traversal.Iterator;
+import edu.uoc.ds.traversal.Traversal;
 import uoc.ds.pr.exceptions.*;
 import uoc.ds.pr.model.*;
 import uoc.ds.pr.util.OrderedVector;
@@ -26,6 +28,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
     private OrderedVector<SportEvent> bestSportEvent;
     private OrderedVector<OrganizingEntity> best5OrganizingEntities;
     private Role[] roles;
+    private HashTable<String, Worker> workers;
     private int numRoles;
     
     private int totalFiles;
@@ -41,6 +44,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
         this.bestSportEvent = new OrderedVector<SportEvent>(MAX_NUM_SPORT_EVENTS, SportEvent.CMP_V);
         this.best5OrganizingEntities = new OrderedVector<OrganizingEntity>(MAX_ORGANIZING_ENTITIES_WITH_MORE_ATTENDERS, OrganizingEntity.CMP_O);
         this.roles = new Role[MAX_ROLES];
+        this.workers = new HashTable<String, Worker>();
         this.numRoles = 0;
         this.totalFiles = 0;
         this.rejectedFiles = 0;
@@ -221,6 +225,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
         Worker old_w = getWorker(dni);
         Worker new_w = new Worker(dni, name, surname, birthDay, roleId);    
         
+        //addUpdate worker inside role[]
         if (old_w == null) {
             r.getWorkers().insertEnd(new_w);
         }
@@ -231,6 +236,12 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
             Role oldRole = getRole(old_w.getRoleId());
             r.updateWorker(oldRole, new_w);
         }
+
+        //addUpdate worker inside HashTable
+        if (old_w != null) {
+            this.workers.delete(dni);
+        }
+        this.workers.put(dni, new_w);
     }
     
     @Override
@@ -396,12 +407,12 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
             throw new PlayerNotFoundException();
         }
 
-        var v_p = this.followers.getVertex(p);
+        Vertex<Player> v_p = this.followers.getVertex(p);
         v_p = v_p != null ? v_p : this.followers.newVertex(p);
-        var v_pf = this.followers.getVertex(pf);
+        Vertex<Player> v_pf = this.followers.getVertex(pf);
         v_pf = v_pf != null ? v_pf : this.followers.newVertex(pf);
 
-        var e_p_pf = this.followers.getEdge(v_p, v_pf);
+        DirectedEdge<Player, Player> e_p_pf = this.followers.getEdge(v_p, v_pf);
         if (e_p_pf == null) {
             this.followers.newEdge(v_p, v_pf);
         }
@@ -497,7 +508,7 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
                 if (alreadyFollowing) { continue; }
                 
                 boolean alreadyInsert = false;
-                var pos_fs_of_fs_of_p = fs_of_fs_of_p.positions();            
+                Traversal<Player> pos_fs_of_fs_of_p = fs_of_fs_of_p.positions();            
                 while (!alreadyInsert && pos_fs_of_fs_of_p.hasNext()) {
                     Position<Player> next_fs_of_fs_of_p = pos_fs_of_fs_of_p.next();
                     if (next_fs_of_fs_of_p.getElem().getId() == f_of_f_of_p.getId()) {
@@ -647,25 +658,20 @@ public class SportEvents4ClubImpl implements SportEvents4Club {
 
     @Override
     public int numWorkers() {
-        int workersCount = 0;
-        for (Role r : this.roles) {
-            if (r != null) {
-                workersCount += r.numWorkers();
-            }
-        }
-        return workersCount;
+        return this.workers.size();
     }
 
     @Override
     public Worker getWorker(String dni) {
-        for (Role r : this.roles) {
-            if (r == null) { continue; }
+        Iterator<Worker> it_workers = this.workers.values();
 
-            Worker w = r.getWorkerByDni(dni);
-            if (w == null) { continue; }
-
-            return w;            
+        while (it_workers.hasNext()) {
+            Worker next_worker = it_workers.next();
+            if (next_worker.getDni() == dni) {
+                return next_worker;
+            }
         }
+
         return null;
     }
 

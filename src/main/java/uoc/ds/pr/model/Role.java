@@ -2,6 +2,8 @@ package uoc.ds.pr.model;
 
 import edu.uoc.ds.adt.helpers.Position;
 import edu.uoc.ds.adt.sequential.LinkedList;
+import edu.uoc.ds.traversal.Iterator;
+import edu.uoc.ds.traversal.Traversal;
 
 public class Role {
     private String roleId;
@@ -35,10 +37,10 @@ public class Role {
     }
 
     public Worker getWorkerByDni(String dni) {
-        var worker_it = getWorkers().values();
+        Iterator<Worker> worker_it = getWorkers().values();
         
         while (worker_it.hasNext()) {
-            var nextWorker = worker_it.next();
+            Worker nextWorker = worker_it.next();
             if (nextWorker.getDni() == dni) {
                 return nextWorker;
             }
@@ -47,7 +49,7 @@ public class Role {
     }
 
     public void updateWorker(Role oldRole, Worker newWorker) {
-        var pos_workers = oldRole.getWorkers().positions();            
+        Traversal<Worker> pos_workers = oldRole.getWorkers().positions();            
         while (pos_workers.hasNext()) {
             Position<Worker> next_worker = pos_workers.next();
             if (next_worker.getElem().getDni() == newWorker.getDni()) {

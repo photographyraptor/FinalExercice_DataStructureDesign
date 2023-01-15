@@ -193,10 +193,10 @@ public class SportEvent implements Comparable<SportEvent> {
     }
 
     public Worker getWorkerByDni(String dni) {
-        var worker_it = getWorkers().values();
+        Iterator<Worker> worker_it = getWorkers().values();
         
         while (worker_it.hasNext()) {
-            var nextWorker = worker_it.next();
+            Worker nextWorker = worker_it.next();
             if (nextWorker.getDni() == dni) {
                 return nextWorker;
             }
